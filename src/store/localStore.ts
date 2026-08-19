@@ -1,4 +1,10 @@
-import { DEFAULT_SETTINGS, type DailyResultRecord, type Settings, type Store } from './Store';
+import {
+  DEFAULT_SETTINGS,
+  type DailyResultRecord,
+  type InProgressDaily,
+  type Settings,
+  type Store,
+} from './Store';
 import { EMPTY_STREAK, type StreakState } from '../daily/streak';
 
 /** The subset of the DOM Storage API we use — lets tests inject an in-memory fake. */
@@ -14,6 +20,8 @@ const PREFIX = 'peaks.';
 const VERSION_KEY = `${PREFIX}schemaVersion`;
 const STREAK_KEY = `${PREFIX}streak`;
 const SETTINGS_KEY = `${PREFIX}settings`;
+const IN_PROGRESS_KEY = `${PREFIX}inProgressDaily`;
+const SESSIONS_KEY = `${PREFIX}sessions`;
 const dailyKey = (dateKey: string) => `${PREFIX}daily.${dateKey}`;
 
 /**
@@ -82,5 +90,28 @@ export class LocalStore implements Store {
 
   setSettings(settings: Settings): void {
     this.storage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  }
+
+  getInProgressDaily(): InProgressDaily | null {
+    return this.readJson<InProgressDaily>(IN_PROGRESS_KEY);
+  }
+
+  setInProgressDaily(progress: InProgressDaily): void {
+    this.storage.setItem(IN_PROGRESS_KEY, JSON.stringify(progress));
+  }
+
+  clearInProgressDaily(): void {
+    this.storage.removeItem(IN_PROGRESS_KEY);
+  }
+
+  getSessionCount(): number {
+    const n = Number(this.storage.getItem(SESSIONS_KEY));
+    return Number.isInteger(n) && n > 0 ? n : 0;
+  }
+
+  incrementSessionCount(): number {
+    const next = this.getSessionCount() + 1;
+    this.storage.setItem(SESSIONS_KEY, String(next));
+    return next;
   }
 }

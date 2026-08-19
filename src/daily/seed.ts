@@ -33,11 +33,11 @@ export const TIER_BY_WEEKDAY: readonly DayTier[] = [
 const DAY_MS = 86_400_000;
 
 /**
- * Day #1 of the Daily Summit. Placeholder until launch — the day index will be
- * re-anchored to the real launch date before going public.
+ * Day #1 of the Daily Summit. Provisional (PM, Step 6): 2026-08-19 so day indices
+ * are positive during QA — re-anchored to the real launch date before going public.
  */
 export const LAUNCH_DATE_ISO: string =
-  (import.meta.env?.VITE_LAUNCH_DATE as string | undefined) || '2026-09-01';
+  (import.meta.env?.VITE_LAUNCH_DATE as string | undefined) || '2026-08-19';
 
 /** Canonical per-day key, e.g. '2026-08-18' (UTC). Used for storage and streaks. */
 export function dateKey(ms: number): string {

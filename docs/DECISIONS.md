@@ -31,7 +31,20 @@ Rule and design decisions that aren't obvious from the code, with who made them 
 - **`VITE_LAUNCH_DATE` placeholder `2026-09-01` (UTC) stands.** The day index will be re-anchored
   to the real launch date before public launch (also noted in README).
 
-## 2026-08-19 — dev decisions (Step 5, flagged for PM review)
+## 2026-08-19 — PM decisions (Step 6 approval; overrides two Step 5 dev decisions below)
+
+- **Stuck is a SOFT state while undos remain.** Undo-out-of-stuck is the entire reason a daily
+  has 3 undos. Pack dims, status shows "Stuck — N/28", Undo stays enabled, and a "Finish climb"
+  button appears. Finalizes on Finish, or automatically at 0 undos. _(Implemented Step 6.)_
+- **Mid-game refresh must resume exactly** — same board, undos consumed and all. A refresh was
+  a cheat vector (free retry with knowledge of the face-down cards). In-progress daily
+  (seed + moves) persists in the Store after every move; reload restores via
+  `replay` + `controller.restore()`. _(Implemented Step 6.)_
+- `VITE_LAUNCH_DATE` provisionally `2026-08-19` so QA day indices are positive; re-anchor at launch.
+- PWA install prompt must never interrupt a game — results modal (or landing) only.
+- Practice banner copy: "Practice climb · Next summit in HH:MM"; no score persistence for practice.
+
+## 2026-08-19 — dev decisions (Step 5; the first two were superseded by the PM above)
 
 - **Stuck finalizes the daily immediately, even with undos remaining.** The spec defines stuck
   as an end state. The engine supports undoing out of stuck, so an "undo mercy" is a small

@@ -15,6 +15,11 @@ export interface ResultsModal {
   open(record: DailyResultRecord, streak: StreakState): void;
   close(): void;
   isOpen(): boolean;
+  /**
+   * PWA install entry point — the modal is the only place it appears, so it never
+   * interrupts a game in progress (PM, Step 6). Pass null to hide.
+   */
+  setInstall(onInstall: (() => void) | null): void;
 }
 
 const SHARE_LABEL = 'Share ⛰️';
@@ -45,6 +50,7 @@ export function createResultsModal(
     `<button type="button" class="expedition-btn" disabled>Expedition — coming soon</button>` +
     `<p class="results-countdown" role="timer"></p>` +
     `<button type="button" class="practice-btn">Practice climb</button>` +
+    `<button type="button" class="install-btn hidden">Install Peaks 📲</button>` +
     `</div>`;
 
   const titleEl = root.querySelector<HTMLElement>('.results-title')!;
@@ -86,6 +92,15 @@ export function createResultsModal(
     handlers.onExpeditionClick?.(); // disabled button — never fires; kept for Phase 2
   });
 
+  const installBtn = root.querySelector<HTMLButtonElement>('.install-btn')!;
+  let onInstallClick: (() => void) | null = null;
+  installBtn.addEventListener('click', () => onInstallClick?.());
+
+  function setInstall(onInstall: (() => void) | null): void {
+    onInstallClick = onInstall;
+    installBtn.classList.toggle('hidden', onInstall === null);
+  }
+
   function open(record: DailyResultRecord, streak: StreakState): void {
     current = { record, streak };
     titleEl.textContent = record.won ? 'Summit! ⛰️' : `Stuck at ${record.cleared}/${BOARD_SIZE}`;
@@ -107,7 +122,7 @@ export function createResultsModal(
     ticker = null;
   }
 
-  return { root, open, close, isOpen: () => !root.classList.contains('hidden') };
+  return { root, open, close, isOpen: () => !root.classList.contains('hidden'), setInstall };
 }
 
 export interface HintBanner {

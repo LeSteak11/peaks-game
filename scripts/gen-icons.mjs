@@ -1,12 +1,15 @@
-// Generates placeholder PWA icons (solid sky with a simple snow-capped peak) as raw PNGs.
-// Zero dependencies — real branded icons replace these in Step 6.
+// Generates the branded Peaks PWA icon set as raw PNGs.
+// Zero dependencies; includes standard, maskable, and Apple touch variants.
 import { deflateSync } from 'node:zlib';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const SKY = [44, 95, 138];
-const MOUNTAIN = [74, 64, 56];
+const SKY_TOP = [30, 72, 110];
+const SKY_BOTTOM = [96, 148, 188];
+const SUN = [232, 161, 60];
+const BACK_PEAK = [58, 88, 114];
+const MOUNTAIN = [61, 51, 44];
 const SNOW = [255, 255, 255];
 
 function crc32(buf) {
@@ -33,18 +36,38 @@ function chunk(type, data) {
   return Buffer.concat([len, body, crc]);
 }
 
-function pixelAt(x, y, size, padded) {
-  // Simple peak: triangle with a snow cap, on sky. Maskable variant shrinks it into a safe zone.
-  const scale = padded ? 0.6 : 0.9;
-  const cx = size / 2;
-  const baseY = size * (padded ? 0.78 : 0.92);
-  const topY = size * (padded ? 0.28 : 0.12);
-  const halfW = (size * scale) / 2;
+function inPeak(x, y, size, cx, topY, baseY, halfW) {
   const t = (y - topY) / (baseY - topY);
-  if (t >= 0 && t <= 1 && Math.abs(x - cx) <= halfW * t) {
-    return t < 0.28 ? SNOW : MOUNTAIN;
-  }
-  return SKY;
+  return t >= 0 && t <= 1 && Math.abs(x - cx) <= halfW * t ? (y - topY) / (baseY - topY) : null;
+}
+
+function pixelAt(x, y, size, padded) {
+  // Layered peaks with snow caps, a sun, and a sky gradient. Maskable variant keeps
+  // everything inside the safe zone.
+  const s = padded ? 0.62 : 0.94;
+  const baseY = size * (padded ? 0.76 : 0.9);
+
+  // Front (main) peak.
+  const front = inPeak(x, y, size, size * 0.46, size * (1 - s * 0.82), baseY, size * s * 0.46);
+  if (front !== null) return front < 0.26 ? SNOW : MOUNTAIN;
+
+  // Back peak, right of the main one.
+  const back = inPeak(x, y, size, size * 0.72, size * (1 - s * 0.6), baseY, size * s * 0.34);
+  if (back !== null) return back < 0.2 ? SNOW : BACK_PEAK;
+
+  // Sun, upper right.
+  const sunX = size * (padded ? 0.72 : 0.8);
+  const sunY = size * (padded ? 0.3 : 0.2);
+  const sunR = size * (padded ? 0.06 : 0.08);
+  if ((x - sunX) ** 2 + (y - sunY) ** 2 <= sunR ** 2) return SUN;
+
+  // Sky gradient.
+  const g = y / size;
+  return [
+    Math.round(SKY_TOP[0] + (SKY_BOTTOM[0] - SKY_TOP[0]) * g),
+    Math.round(SKY_TOP[1] + (SKY_BOTTOM[1] - SKY_TOP[1]) * g),
+    Math.round(SKY_TOP[2] + (SKY_BOTTOM[2] - SKY_TOP[2]) * g),
+  ];
 }
 
 function makePng(size, padded) {
@@ -78,4 +101,4 @@ writeFileSync(join(outDir, 'pwa-192x192.png'), makePng(192, false));
 writeFileSync(join(outDir, 'pwa-512x512.png'), makePng(512, false));
 writeFileSync(join(outDir, 'pwa-maskable-512x512.png'), makePng(512, true));
 writeFileSync(join(outDir, 'apple-touch-icon.png'), makePng(180, false));
-console.log('Placeholder icons written to public/');
+console.log('Branded icons written to public/');

@@ -2,3 +2,5 @@ dist/
 dev-dist/
 package-lock.json
 docs/PEAKS_PHASE1.md
+docs/research/
+docs/status/lighthouse/

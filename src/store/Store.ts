@@ -49,6 +49,17 @@ export const DEFAULT_SETTINGS: Settings = {
   seenHint: false,
 };
 
+/**
+ * An unfinished Daily Summit. Persisted after every move so a mid-game refresh
+ * resumes exactly where the player was — same board, undos consumed and all —
+ * instead of handing out a free retry (PM, Step 6). Rebuilt via replay(seed, moves).
+ */
+export interface InProgressDaily {
+  readonly dateKey: string;
+  readonly seed: number;
+  readonly moves: readonly Move[];
+}
+
 export interface Store {
   getDailyResult(dateKey: string): DailyResultRecord | null;
   setDailyResult(result: DailyResultRecord): void;
@@ -56,4 +67,10 @@ export interface Store {
   setStreak(streak: StreakState): void;
   getSettings(): Settings;
   setSettings(settings: Settings): void;
+  getInProgressDaily(): InProgressDaily | null;
+  setInProgressDaily(progress: InProgressDaily): void;
+  clearInProgressDaily(): void;
+  /** Bumped once per app open; drives the "install after 2nd session" prompt. */
+  incrementSessionCount(): number;
+  getSessionCount(): number;
 }

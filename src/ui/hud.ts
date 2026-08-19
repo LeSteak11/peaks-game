@@ -1,5 +1,5 @@
 import type { GameState } from '../engine/types';
-import { clearedCount, isStuck, isSummit } from '../engine/rules';
+import { canUndo, clearedCount, isStuck, isSummit } from '../engine/rules';
 import { BOARD_SIZE } from '../engine/deal';
 import type { GameController } from './controller';
 import { cardBackSvg, cardFaceSvg, cardName } from './card';
@@ -53,8 +53,12 @@ export interface TrayView {
   sync(state: GameState): void;
 }
 
-/** Bottom strip: pack (with remaining count), pile (the visual anchor), undo. */
-export function createTray(controller: GameController): TrayView {
+/**
+ * Bottom strip: pack (with remaining count), pile (the visual anchor), undo, and —
+ * in soft-stuck daily games — a "Finish climb" button (stuck only finalizes on tap
+ * or once undos run out; PM, Step 6).
+ */
+export function createTray(controller: GameController, onFinish?: () => void): TrayView {
   const root = document.createElement('section');
   root.className = 'tray';
   root.innerHTML =
@@ -64,24 +68,31 @@ export function createTray(controller: GameController): TrayView {
     `</button>` +
     `<div class="pile"><span class="pile-card"></span></div>` +
     `<button type="button" class="undo-btn">Undo</button>` +
-    `<p class="status" role="status"></p>`;
+    `<p class="status" role="status"></p>` +
+    `<button type="button" class="finish-btn hidden">Finish climb</button>`;
 
   const packBtn = root.querySelector<HTMLButtonElement>('.pack')!;
   const packCount = root.querySelector<HTMLElement>('.pack-count')!;
   const pileCard = root.querySelector<HTMLElement>('.pile-card')!;
   const undoBtn = root.querySelector<HTMLButtonElement>('.undo-btn')!;
   const statusEl = root.querySelector<HTMLElement>('.status')!;
+  const finishBtn = root.querySelector<HTMLButtonElement>('.finish-btn')!;
 
   packBtn.addEventListener('click', () => controller.draw());
   undoBtn.addEventListener('click', () => controller.undo());
+  finishBtn.addEventListener('click', () => onFinish?.());
 
   function sync(state: GameState): void {
     packCount.textContent = String(state.pack.length);
     packBtn.disabled = state.pack.length === 0;
     packBtn.classList.toggle('empty', state.pack.length === 0);
 
+    // Accessible name must contain the visible count ("23") for a11y name-mismatch rules.
+    packBtn.setAttribute('aria-label', `Draw a card — ${state.pack.length} left`);
+
     const top = state.pile[state.pile.length - 1]!;
     pileCard.innerHTML = cardFaceSvg(top);
+    pileCard.setAttribute('role', 'img');
     pileCard.setAttribute('aria-label', `Pile: ${cardName(top)}`);
 
     if (state.undoLimit === null) {
@@ -98,6 +109,10 @@ export function createTray(controller: GameController): TrayView {
       : isStuck(state)
         ? `Stuck — ${clearedCount(state)}/${BOARD_SIZE} cleared`
         : '';
+
+    // Soft-stuck escape hatch: only in budgeted (daily) games with undos remaining.
+    const softStuck = state.undoLimit !== null && isStuck(state) && canUndo(state);
+    finishBtn.classList.toggle('hidden', !softStuck);
   }
 
   return { root, sync };

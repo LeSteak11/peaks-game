@@ -77,6 +77,12 @@ body {
   min-height: 100vh;
 }
 
+main.game {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
 /* ---------- header ---------- */
 
 .top {
@@ -187,6 +193,14 @@ body {
   transition:
     transform 150ms ease-out,
     opacity 150ms ease-out;
+}
+
+/* Hit-slop: extends the tap target beyond the card art (~43px wide at 360px), most
+   generously downward where the bottom row borders empty space. */
+.slot::after {
+  content: '';
+  position: absolute;
+  inset: -4% -8% -16%;
 }
 
 .card-inner {
@@ -419,11 +433,59 @@ body {
   color: var(--sky-deep);
 }
 
+.hidden {
+  display: none !important;
+}
+
 /* ---------- daily mode ---------- */
 
 /* Daily is one shot — no reshuffle button. */
 #app[data-mode='daily'] .new-climb {
   display: none;
+}
+
+/* Practice banner: free play only. */
+.practice-banner {
+  display: none;
+  margin: 0;
+  padding: 0.4rem 0.75rem;
+  border-radius: 10px;
+  background: var(--btn-bg);
+  border: 1px solid var(--btn-edge);
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+#app[data-mode='free'] .practice-banner {
+  display: block;
+}
+
+/* Soft-stuck escape hatch. */
+.finish-btn {
+  grid-column: 1 / -1;
+  min-height: 48px;
+  border: none;
+  border-radius: 12px;
+  background: var(--sky-deep);
+  color: var(--sky);
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Install entry point — results modal only, never mid-game. */
+.install-btn {
+  min-height: 44px;
+  border: 1px solid var(--btn-edge);
+  border-radius: 12px;
+  background: var(--btn-bg);
+  color: var(--ink);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 /* ---------- results modal ---------- */
