@@ -32,9 +32,22 @@ export interface DailyResultRecord {
   readonly completedAt: number;
 }
 
+/** 'system' follows prefers-color-scheme; 'light'/'dark' are manual overrides. */
+export type ThemeSetting = 'system' | 'light' | 'dark';
+
+export interface Settings {
+  readonly theme: ThemeSetting;
+  /** Playable-card highlight (PM: default ON; exposed in settings UI later). */
+  readonly highlightPlayable: boolean;
+}
+
+export const DEFAULT_SETTINGS: Settings = { theme: 'system', highlightPlayable: true };
+
 export interface Store {
   getDailyResult(dateKey: string): DailyResultRecord | null;
   setDailyResult(result: DailyResultRecord): void;
   getStreak(): StreakState;
   setStreak(streak: StreakState): void;
+  getSettings(): Settings;
+  setSettings(settings: Settings): void;
 }

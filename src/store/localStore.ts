@@ -1,4 +1,4 @@
-import type { DailyResultRecord, Store } from './Store';
+import { DEFAULT_SETTINGS, type DailyResultRecord, type Settings, type Store } from './Store';
 import { EMPTY_STREAK, type StreakState } from '../daily/streak';
 
 /** The subset of the DOM Storage API we use — lets tests inject an in-memory fake. */
@@ -13,6 +13,7 @@ export const SCHEMA_VERSION = 1;
 const PREFIX = 'peaks.';
 const VERSION_KEY = `${PREFIX}schemaVersion`;
 const STREAK_KEY = `${PREFIX}streak`;
+const SETTINGS_KEY = `${PREFIX}settings`;
 const dailyKey = (dateKey: string) => `${PREFIX}daily.${dateKey}`;
 
 /**
@@ -72,5 +73,14 @@ export class LocalStore implements Store {
 
   setStreak(streak: StreakState): void {
     this.storage.setItem(STREAK_KEY, JSON.stringify(streak));
+  }
+
+  getSettings(): Settings {
+    // Merge over defaults so newly added settings keys never read as undefined.
+    return { ...DEFAULT_SETTINGS, ...this.readJson<Partial<Settings>>(SETTINGS_KEY) };
+  }
+
+  setSettings(settings: Settings): void {
+    this.storage.setItem(SETTINGS_KEY, JSON.stringify(settings));
   }
 }
