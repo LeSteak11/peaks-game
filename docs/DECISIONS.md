@@ -31,6 +31,17 @@ Rule and design decisions that aren't obvious from the code, with who made them 
 - **`VITE_LAUNCH_DATE` placeholder `2026-09-01` (UTC) stands.** The day index will be re-anchored
   to the real launch date before public launch (also noted in README).
 
+## 2026-08-19 — dev decisions (Step 5, flagged for PM review)
+
+- **Stuck finalizes the daily immediately, even with undos remaining.** The spec defines stuck
+  as an end state. The engine supports undoing out of stuck, so an "undo mercy" is a small
+  change if ever wanted.
+- **Mid-game refresh restarts the daily** (same board, fresh state) — the once-per-day lock
+  applies on completion. In-progress persistence (`controller.restore` + stored moves) is a
+  Phase 2 candidate.
+- **Cross-midnight completions are keyed to the day the game started** — finishing at 00:01 UTC
+  locks yesterday's board and leaves today's summit open (streak carries; tested).
+
 ## 2026-08-18 — dev decision (confirmed by PM above)
 
 - **Cracking does not require a rank match.** Any _exposed_ iced card can be cracked at any time;

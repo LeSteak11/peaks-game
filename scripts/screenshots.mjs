@@ -117,6 +117,51 @@ try {
 
   await setTheme(page, 'dark');
   await shot(page, 'p1s4-desktop-dark.png');
+
+  // --- Step 5: real daily loop, end to end (fresh profile ≙ fresh device) ---
+  await browser
+    .defaultBrowserContext()
+    .overridePermissions(new URL(BASE_URL).origin, [
+      'clipboard-read',
+      'clipboard-write',
+      'clipboard-sanitized-write',
+    ]);
+  await page.setViewport({ width: 360, height: 700, deviceScaleFactor: 2 });
+  await page.evaluate(() => localStorage.clear());
+  await page.reload({ waitUntil: 'networkidle0' });
+  await page.waitForSelector('.slot');
+  await setTheme(page, 'light');
+  await shot(page, 'p1s5-360-daily-start.png'); // hint, no 🔀, "Undo · 3"
+
+  // Play today's summit to the end (first legal move each step, paced past the input lock).
+  for (let guard = 0; guard < 200; guard++) {
+    const done = await page.evaluate(() => {
+      const { controller, engine } = window.__peaks;
+      const s = controller.getState();
+      if (engine.isSummit(s) || engine.isStuck(s)) return true;
+      const legal = engine.legalMoves(s);
+      if (legal.length === 0) return true;
+      const m = legal[0];
+      if (m.type === 'tap') controller.tap(m.slot);
+      else controller.draw();
+      return false;
+    });
+    if (done) break;
+    await new Promise((r) => setTimeout(r, 170));
+  }
+  await shot(page, 'p1s5-360-results.png'); // results modal, streak, countdown
+
+  await page.click('.share-btn');
+  await new Promise((r) => setTimeout(r, 400));
+  const shareLabel = await page.$eval('.share-btn', (el) => el.textContent);
+  const clipboard = await page.evaluate(() => navigator.clipboard.readText().catch(() => null));
+  console.log('share button after click:', JSON.stringify(shareLabel));
+  console.log('clipboard now contains:', JSON.stringify(clipboard));
+  await shot(page, 'p1s5-360-share-copied.png');
+
+  await page.reload({ waitUntil: 'networkidle0' });
+  await new Promise((r) => setTimeout(r, 400));
+  await shot(page, 'p1s5-360-revisit.png'); // same-day revisit: results + countdown
 } finally {
   await browser.close();
 }

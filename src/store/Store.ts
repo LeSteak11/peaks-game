@@ -39,9 +39,15 @@ export interface Settings {
   readonly theme: ThemeSetting;
   /** Playable-card highlight (PM: default ON; exposed in settings UI later). */
   readonly highlightPlayable: boolean;
+  /** First-time one-line hint has been shown. */
+  readonly seenHint: boolean;
 }
 
-export const DEFAULT_SETTINGS: Settings = { theme: 'system', highlightPlayable: true };
+export const DEFAULT_SETTINGS: Settings = {
+  theme: 'system',
+  highlightPlayable: true,
+  seenHint: false,
+};
 
 export interface Store {
   getDailyResult(dateKey: string): DailyResultRecord | null;

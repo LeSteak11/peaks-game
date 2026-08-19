@@ -16,20 +16,28 @@ export class GameController {
   private state: GameState | null = null;
   private listeners = new Set<Listener>();
   private lockUntil = 0;
+  private moves: Move[] = [];
 
   constructor(private readonly lockMs = 150) {}
 
   newGame(seed: number, opts: DealOptions = {}): void {
     this.state = deal(seed, opts);
     this.lockUntil = 0;
+    this.moves = [];
     this.emit();
   }
 
   /** Resume a previously saved or derived state (Step 5 daily resume; dev tooling). */
-  restore(state: GameState): void {
+  restore(state: GameState, moves: readonly Move[] = []): void {
     this.state = state;
     this.lockUntil = 0;
+    this.moves = [...moves];
     this.emit();
+  }
+
+  /** Every accepted move, in order — with the seed, the replay/validation payload. */
+  getMoves(): readonly Move[] {
+    return this.moves;
   }
 
   hasGame(): boolean {
@@ -69,6 +77,7 @@ export class GameController {
     if (move.type === 'undo' && !canUndo(state)) return false;
     this.state = applyMove(state, move);
     this.lockUntil = Date.now() + this.lockMs;
+    this.moves.push(move);
     this.emit();
     return true;
   }

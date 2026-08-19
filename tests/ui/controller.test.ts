@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { GameController } from '../../src/ui/controller';
-import { legalMoves } from '../../src/engine/rules';
+import { legalMoves, replay } from '../../src/engine/rules';
 import type { GameState, Move } from '../../src/engine/types';
 
 function firstTap(state: GameState): Move & { type: 'tap' } {
@@ -57,6 +57,32 @@ describe('GameController', () => {
     c.draw();
     expect(c.undo()).toBe(true);
     expect(c.getState().pack).toHaveLength(23);
+  });
+
+  it('records every accepted move — replaying them reproduces the exact state', () => {
+    const c = new GameController(0);
+    const opts = { iceCount: 2, undoLimit: null };
+    c.newGame(42, opts);
+    c.tap(0); // illegal — must NOT be recorded
+    const tap = firstTap(c.getState());
+    c.tap(tap.slot);
+    c.draw();
+    c.undo();
+    expect(c.getMoves()).toEqual([
+      { type: 'tap', slot: tap.slot },
+      { type: 'draw' },
+      { type: 'undo' },
+    ]);
+    const replayed = replay(42, opts, c.getMoves());
+    expect(JSON.stringify(replayed)).toBe(JSON.stringify(c.getState()));
+  });
+
+  it('resets the recorded moves on newGame', () => {
+    const c = new GameController(0);
+    c.newGame(42);
+    c.draw();
+    c.newGame(43);
+    expect(c.getMoves()).toEqual([]);
   });
 
   it('stops notifying after unsubscribe', () => {

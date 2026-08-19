@@ -48,16 +48,25 @@ describe('LocalStore', () => {
 describe('settings', () => {
   it('defaults to system theme with highlights on, and round-trips changes', () => {
     const store = new LocalStore(fakeStorage());
-    expect(store.getSettings()).toEqual({ theme: 'system', highlightPlayable: true });
-    store.setSettings({ theme: 'dark', highlightPlayable: true });
+    expect(store.getSettings()).toEqual({
+      theme: 'system',
+      highlightPlayable: true,
+      seenHint: false,
+    });
+    store.setSettings({ theme: 'dark', highlightPlayable: true, seenHint: true });
     expect(store.getSettings().theme).toBe('dark');
+    expect(store.getSettings().seenHint).toBe(true);
   });
 
   it('merges stored partial settings over defaults (forward-compatible)', () => {
     const storage = fakeStorage();
     storage.setItem('peaks.settings', '{"theme":"light"}'); // older schema, missing keys
     const store = new LocalStore(storage);
-    expect(store.getSettings()).toEqual({ theme: 'light', highlightPlayable: true });
+    expect(store.getSettings()).toEqual({
+      theme: 'light',
+      highlightPlayable: true,
+      seenHint: false,
+    });
   });
 });
 

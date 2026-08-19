@@ -419,6 +419,140 @@ body {
   color: var(--sky-deep);
 }
 
+/* ---------- daily mode ---------- */
+
+/* Daily is one shot — no reshuffle button. */
+#app[data-mode='daily'] .new-climb {
+  display: none;
+}
+
+/* ---------- results modal ---------- */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(15, 28, 40, 0.55);
+  backdrop-filter: blur(2px);
+}
+
+.modal-overlay.hidden {
+  display: none;
+}
+
+.modal {
+  width: min(100%, 380px);
+  background: var(--sky);
+  border: 1px solid var(--btn-edge);
+  border-radius: 16px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  text-align: center;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+
+.results-title {
+  margin: 0;
+  font-size: 1.6rem;
+  color: var(--sky-deep);
+}
+
+.results-day {
+  margin: 0;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+
+.results-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+
+.results-stats .stat {
+  display: block;
+  font-size: 1.2rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.share-btn,
+.practice-btn {
+  min-height: 48px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.share-btn {
+  background: var(--glow);
+  color: #2b1d05;
+}
+
+.share-btn:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.practice-btn {
+  background: var(--btn-bg);
+  border: 1px solid var(--btn-edge);
+  color: var(--ink);
+}
+
+.expedition-btn {
+  min-height: 44px;
+  border: 1px dashed var(--btn-edge);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+}
+
+.expedition-btn:disabled {
+  cursor: default;
+}
+
+.results-countdown {
+  margin: 0;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- first-time hint ---------- */
+
+.hint {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--btn-edge);
+  border-radius: 10px;
+  background: var(--btn-bg);
+  font-size: 0.95rem;
+}
+
+.hint span {
+  flex: 1;
+}
+
+.hint-close {
+  min-width: 32px;
+  min-height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: 1rem;
+  cursor: pointer;
+}
+
 /* ---------- misc ---------- */
 
 .placeholder {
