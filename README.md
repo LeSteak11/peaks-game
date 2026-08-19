@@ -26,6 +26,9 @@ npm run dev
 No environment variables are required — copy `.env.example` to `.env` only if you need to override
 defaults (PostHog key, site URL, launch date).
 
+> **Note:** `VITE_LAUNCH_DATE` (day #1 of the Daily Summit) is a placeholder — `2026-09-01` UTC.
+> The day index will be re-anchored to the real launch date before public launch.
+
 ## Architecture
 
 - **TypeScript + Vite, vanilla DOM + CSS.** No framework.
@@ -39,8 +42,12 @@ defaults (PostHog key, site URL, launch date).
 
 ### How the daily seed works
 
-_(Lands in Step 3.)_ The UTC date `YYYYMMDD` as an integer feeds `mulberry32`. Same seed → identical
-shuffle, ice placement, and board on every device, with no server involved.
+The UTC date `YYYYMMDD` as an integer feeds `mulberry32` (`src/daily/seed.ts` →
+`src/engine/deal.ts`). Same seed → identical shuffle, ice placement, and board on every device,
+with no server involved. Difficulty (ice count, 0–3) rotates by UTC weekday via the
+`TIER_BY_WEEKDAY` constant; the Daily Summit allows 3 undos. A stored result for today's UTC date
+key is the once-per-day lock, and `seed` + the stored move list is the future server-side
+validation payload.
 
 ## Deploy
 

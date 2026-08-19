@@ -19,7 +19,19 @@ Rule and design decisions that aren't obvious from the code, with who made them 
   10×2, etc. Draw resets to 0. Peak (+100) / summit (+500) bonuses stack on top and never affect
   the combo.
 
-## 2026-08-18 — dev decision (flagged for PM review)
+## 2026-08-18 — PM confirmations (Step 3 approval)
+
+- **Crack-any-rank: confirmed for Phase 1.** On record: requiring a rank match on the crack
+  changes nothing (the pile doesn't move on a crack, so the second tap is legal immediately) —
+  friction without depth. Crack-any-rank lets players "prep" the board. Known cost: ice is a
+  pacing/texture mechanic, not a difficulty mechanic, in Phase 1.
+- **Phase 2 tuning candidate — do not build now:** _ice refreezes when the player draws from the
+  pack._ That single rule gives ice teeth (crack-then-clear-before-you-draw) without touching the
+  tap model.
+- **`VITE_LAUNCH_DATE` placeholder `2026-09-01` (UTC) stands.** The day index will be re-anchored
+  to the real launch date before public launch (also noted in README).
+
+## 2026-08-18 — dev decision (confirmed by PM above)
 
 - **Cracking does not require a rank match.** Any _exposed_ iced card can be cracked at any time;
   only the second tap (the actual clear) needs the ±1 rank match. Rationale: it makes ice
